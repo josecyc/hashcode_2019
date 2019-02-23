@@ -46,7 +46,7 @@ class PolicyGradient:
         self.lr = learning_rate
         self.gamma = reward_decay
 
-        self.save_path = None
+        self.save_path = './model'
         if save_path is not None:
             self.save_path = save_path
 
@@ -60,7 +60,7 @@ class PolicyGradient:
 
         # $ tensorboard --logdir=logs
         # http://0.0.0.0:6006/
-        tf.summary.FileWriter("logs/", self.sess.graph)
+        self.writer = tf.summary.FileWriter("logs/", self.sess.graph)
 
         self.sess.run(tf.global_variables_initializer())
 
@@ -116,11 +116,13 @@ class PolicyGradient:
         discounted_episode_rewards_norm = self.discount_and_norm_rewards()
 
         # Train on episode
-        self.sess.run(self.train_op, feed_dict={
+        _, summaries, global_step = self.sess.run([self.train_op, self.summaries, self.global_step], feed_dict={
              self.X: np.vstack(self.episode_observations).T,
              self.Y: np.vstack(np.array(self.episode_actions)).T,
              self.discounted_episode_rewards_norm: discounted_episode_rewards_norm,
         })
+        self.writer.add_summary(summaries, global_step)
+        self.writer.flush()
 
         # Reset the episode data
         self.episode_observations, self.episode_actions, self.episode_rewards  = [], [], []
@@ -187,9 +189,11 @@ class PolicyGradient:
         with tf.name_scope('loss'):
             neg_log_prob = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
             loss = tf.reduce_mean(neg_log_prob * self.discounted_episode_rewards_norm)  # reward guided loss
-
+            tf.summary.scalar('loss', loss)
+        self.summaries = tf.summary.merge_all()
         with tf.name_scope('train'):
-            self.train_op = tf.train.AdamOptimizer(self.lr).minimize(loss)
+            self.global_step = tf.train.get_or_create_global_step()
+            self.train_op = tf.train.AdamOptimizer(self.lr).minimize(loss, global_step=self.global_step)
 
     def plot_cost(self):
         import matplotlib
