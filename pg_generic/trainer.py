@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:55:13 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/23 00:47:48 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/23 11:08:47 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ import numpy as np
 
 
 RENDER_ENV = True
-EPISODES = 500
+EPISODES = 2
 rewards = []
 RENDER_REWARD_MIN = 10
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     for episode in range(EPISODES):
 
         #state = env.reset()
-        env = game.Game({'max_steps':5000})
+        env = game.Game({'max_steps':2000})
         episode_reward = 0
         h = 5			
         l = 1
@@ -108,10 +108,11 @@ if __name__ == "__main__":
                 # Render env if we get to rewards minimum
                 if max_reward_so_far > RENDER_REWARD_MIN: #RENDER_ENV = True
                     break
-                h = random.randint(1, R * C + 1)
-                l = random.randint(1, h // 2 + 1)
-                env = game.Game({'max_steps':10000}) # initialize game from game.py
+                h = np.random.randint(1, R * C + 1)
+                l = np.random.randint(1, h // 2 + 1)
+                env = game.Game({'max_steps':2000}) # initialize game from game.py
                 pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
                 pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
             # Save new state
             state = state_
+        PG.plot_cost()
