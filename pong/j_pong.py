@@ -18,8 +18,9 @@ model['W1'] = np.random.randn(H, D) / np.sqrt(D) #Xavier initialization, "just r
 model['W2'] = np.random.randn(H) / np.sqrt(H)
 
 grad_buffer = { k : np.zeros_like(v) for k, v in model.items() }
-#What is this?
+#grad_buffer = What is this?
 rmsprop_cache = { k : np.zeros_like(v) for k, v in model.items() }
+#rmsprop_cache = What is this?
 
 def sigmoid(x):
 	return 1.0 / (1.0 + np.exp(-x)) #sigmoid squashing function to interval [0,1]
@@ -54,10 +55,9 @@ def discount_rewards(r):
 def policy_forward(x):
 	h = np.dot(model['W1'], x)
 	h[h<0] = 0 #Relu nonlinearity
-	#this needs to chagne to softmax
-	logp = np.dot(model['W2'], h)
-	p = sigmoid(logp)
-	return p, h #returns probability of taking action "up"
+	logp = np.dot(model['W1'], h)
+        p = sigmoid(logp)
+        return p, h
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -69,25 +69,24 @@ def build_graph(observations):
         This function will be called twice: rollout and train.
 	    The weights will be shared.
 	        """
-	with tf.variable_scope('model', reuse=tf.AUTO_REUSE):	        hidden = tf.layers.dense(observations, args.hidden_dim, use_bias=False, activation=tf.nn.relu)
-	logits = tf.layers.dense(hidden, len(ACTIONS), use_bias=False)
-	return logits
+	with tf.variable_scope('model', reuse=tf.AUTO_REUSE):	        
+            hidden = tf.layers.dense(observations, args.hidden_dim, use_bias=False, activation=tf.nn.relu)
+	    logits = tf.layers.dense(hidden, len(ACTIONS), use_bias=False)
+            return logits
 
 def policy_backward(eph, epdlogp):
-	"Backward pass. (eph is array of intermidiate hidden states)
-	So this is where we need to pass the previous state array
-	meaning something of 2 million would not be efficient"
-	der_W2 = np.dot(eph.T, epdlogp).ravel()
-	#derivative of W2 is dot product of intermediate hidden states vectors
-	der_h = np.outer(epdlogp, model['W2'])
-	der_h[eph <= 0] = 0 #backpro prelu
-	der_W1 = np.dot(der_h.T, epx)
-	#what is epx?
-	#what is der_h.T?
-	return {'W1':der_W1, 'W2':der_W2}
+    """Backward pass, eph is array of intermediate hidden states"""
+    #eph == array of hidden states, i.e. array of hs?
+    #edplogp == 
+    dW2 = np.dot(eph.T, edplogp).ravel()
+    #Why is the derivative of W2 the dot product of eph.t and edplogp??
+    dh = np.outer(epdlogp, model['W2'])
+    dh[eph <= 0] = 0 #backprop with ReLu
+    dW1 = np.dot(dh.T, epx)
+    #dh.T = 
+    #epx =
+    return {'W1':dW1, 'W2':dW2}
 
-env = gym.make("Pong-V0") #makes an instance of the Pong-V0 environment
-observation = env.reset() #resets the environment and returns an observation, which includes state (slice pizza matrix, reward, 
-prev_x = None #used in computing 
+
 
 
