@@ -19,9 +19,9 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 30
-P_GAMES = 5
-STEPS = 100
+BATCHES = 10
+P_GAMES = 1
+STEPS = 1
 rewards = []
 RENDER_REWARD_MIN = 100
 
@@ -66,7 +66,10 @@ if __name__ == "__main__":
             pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
             pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
             state = env.init(pizza_config)[0]
-	    #np.zeros(OBSERVATION_DIM) #get only first value of tuple
+            print("\nPIZZA CONFIG: ", pizza_config)
+            print("\nSTATE: ", state)
+            print("\n\nSTATE[0]", state[0])
+	    #state[0] #get only first value of tuple
             for step in range(STEPS):
                 if RENDER_ENV: 
                     env.render()
