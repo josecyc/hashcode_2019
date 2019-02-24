@@ -1,0 +1,2 @@
+model_checkpoint_path: "pizza-temp.ckpt"
+all_model_checkpoint_paths: "pizza-temp.ckpt"
