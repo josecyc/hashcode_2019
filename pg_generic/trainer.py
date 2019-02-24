@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    cartpole.py                                        :+:      :+:    :+:    #
+#    trainer.py                                          :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -30,9 +30,9 @@ import numpy as np
 
 
 RENDER_ENV = True
-EPISODES = 2
+EPISODES = 1000
 rewards = []
-RENDER_REWARD_MIN = 10
+RENDER_REWARD_MIN = 100
 
 R = 6
 C = 7
@@ -69,15 +69,15 @@ if __name__ == "__main__":
     for episode in range(EPISODES):
 
         #state = env.reset()
-        env = game.Game({'max_steps':2000})
-        episode_reward = 0
-        h = 5			
-        l = 1
-        pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
-        pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
-        state = env.init(pizza_config)[0]  #np.zeros(OBSERVATION_DIM) #get only first value of tuple
 
         while True:
+            env = game.Game({'max_steps':100})
+            episode_reward = 0
+            h = 5			
+            l = 1
+            pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
+            pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
+            state = env.init(pizza_config)[0]  #np.zeros(OBSERVATION_DIM) #get only first value of tuple
             if RENDER_ENV: 
                 env.render()
             # sample one action with the given probability distribution
@@ -104,15 +104,15 @@ if __name__ == "__main__":
 
                 # 4. Train neural network
                 discounted_episode_rewards_norm = PG.learn()
-
+           
                 # Render env if we get to rewards minimum
-                if max_reward_so_far > RENDER_REWARD_MIN: #RENDER_ENV = True
-                    break
-                h = np.random.randint(1, R * C + 1)
-                l = np.random.randint(1, h // 2 + 1)
-                env = game.Game({'max_steps':2000}) # initialize game from game.py
-                pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
-                pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
+           #     if max_reward_so_far > RENDER_REWARD_MIN: #RENDER_ENV = True
+            #        break
+            #    h = 5 #np.random.randint(1, R * C + 1)
+            #    l = 1 #np.random.randint(1, h // 2 + 1)
+            #    env = game.Game({'max_steps':100}) # initialize game from game.py
+            #    pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
+            #    pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
             # Save new state
             state = state_
-        PG.plot_cost()
+    PG.plot_cost()

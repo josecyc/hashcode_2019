@@ -136,16 +136,16 @@ class PolicyGradient:
 
     def discount_and_norm_rewards(self):
         discounted_episode_rewards = np.zeros_like(self.episode_rewards, dtype=float)
-        print("DISCOUNTED\n", discounted_episode_rewards)
+        #print("DISCOUNTED\n", discounted_episode_rewards)
         cumulative = 0
         for t in reversed(range(len(self.episode_rewards))):
             cumulative = cumulative * self.gamma + self.episode_rewards[t]
-            print("CUMULATIVE :\n", cumulative)
+         #   print("CUMULATIVE :\n", cumulative)
             discounted_episode_rewards[t] = cumulative
-            print("Ri :\n", discounted_episode_rewards[t])
+          #  print("Ri :\n", discounted_episode_rewards[t])
 
-        print("DISCOUNTED\n", discounted_episode_rewards)
-        print("MEAN\n", np.mean(discounted_episode_rewards))
+        #print("DISCOUNTED\n", discounted_episode_rewards)
+       # print("MEAN\n", np.mean(discounted_episode_rewards))
         discounted_episode_rewards -= np.mean(discounted_episode_rewards)
         discounted_episode_rewards /= np.std(discounted_episode_rewards)
         return discounted_episode_rewards
