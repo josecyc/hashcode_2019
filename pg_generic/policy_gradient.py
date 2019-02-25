@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:35:16 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 11:19:55 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 14:07:46 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,7 +51,7 @@ class PolicyGradient:
             self.save_path = save_path
 
         # Initialize empty arrays to store states (observs, action, rewards)
-        self.episode_observations, self.episode_actions, self.episode_rewards = [], [], []
+        self.batch_observations, self.batch_actions, self.game_rewards, self.batch_rewards = [], [], [], []
         
         # Build network
         self.build_network()
@@ -84,7 +84,7 @@ class PolicyGradient:
         with tf.name_scope('inputs'):
             self.X = tf.placeholder(tf.float32, shape=(self.n_x, None), name="X")
             self.Y = tf.placeholder(tf.float32, shape=(self.n_y, None), name="Y")
-            self.discounted_episode_rewards_norm = tf.placeholder(tf.float32, [None, ], name="rewards")
+            self.discounted_batch_rewards_norm = tf.placeholder(tf.float32, [None, ], name="rewards")
 
         # Initialize parameters
         units_layer_1 = 100
@@ -116,19 +116,19 @@ class PolicyGradient:
 
         with tf.name_scope('loss'):
             neg_log_prob = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
-            loss = tf.reduce_mean(neg_log_prob * self.discounted_episode_rewards_norm)  # reward guided loss
-            print("\n\nSELF EPISODE REWARDS", self.episode_rewards, "\n\n")
+            loss = tf.reduce_mean(neg_log_prob * self.discounted_batch_rewards_norm)  # reward guided loss
+            print("\n\nSELF GAME REWARDS", self.game_rewards, "\n\n")
             tf.summary.scalar('loss', loss)
+            self.summaries = tf.summary.merge_all()
 
         with tf.name_scope('train'):
             self.global_step = tf.train.get_or_create_global_step()
             self.train_op = tf.train.AdamOptimizer(self.lr).minimize(loss, global_step=self.global_step)
 
-        with tf.name_scope('rewards'):
-            reward_mean = tf.metrics.mean(self.episode_rewards)
-            tf.summary.scalar('reward_mean', reward_mean)
-            #get_variable(name="rew_mean", np.mean(self.episode_rewards)
-        self.summaries = tf.summary.merge_all()
+       # with tf.name_scope('rewards'):
+         #   reward_mean = tf.metrics.mean(self.game_rewards)
+         #   tf.summary.scalar('reward_mean', reward_mean)
+            #get_variable(name="rew_mean", np.mean(self.game_rewards)
 
     # 1. Choose action based on observation (state)
     def choose_action(self, observation):
@@ -159,57 +159,59 @@ class PolicyGradient:
                 a: action taken
                 r: reward after action
         """
-        self.episode_observations.append(s)
+        # Store batch observations
+        self.batch_observations.append(s)
 
-        #Store episode(game) rewards
-        self.episode_rewards.append(r)
+        # Store game and batch rewards
+        self.game_rewards.append(r)
+        self.batch_rewards.append(r)
 
-        # Store actions as list of arrays
+        # Store batch actions as list of arrays
         # e.g. for n_y = 2 -> [ array([ 1.,  0.]), array([ 0.,  1.]), array([ 0.,  1.]),
         # array([ 1.,  0.]) ]
         action = np.zeros(self.n_y)
         action[a] = 1
-        self.episode_actions.append(action)
+        self.batch_actions.append(action)
 
 
     # 3. Learn 
     def learn(self):
         # Discount and normalize episode reward
-        discounted_episode_rewards_norm = self.discount_and_norm_rewards()
+        discounted_batch_rewards_norm = self.discount_and_norm_rewards()
 
         # Train on episode (batch)
         _, summaries, global_step = self.sess.run([self.train_op, self.summaries, self.global_step], feed_dict={
-             self.X: np.vstack(self.episode_observations).T,
-             self.Y: np.vstack(np.array(self.episode_actions)).T,
-             self.discounted_episode_rewards_norm: discounted_episode_rewards_norm,
+             self.X: np.vstack(self.batch_observations).T,
+             self.Y: np.vstack(np.array(self.batch_actions)).T,
+             self.discounted_batch_rewards_norm: discounted_batch_rewards_norm,
         })
         self.writer.add_summary(summaries, global_step)
         self.writer.flush()
 
         # Reset the episode data
-        self.episode_observations, self.episode_actions, self.episode_rewards  = [], [], []
+        self.batch_observations, self.batch_actions, self.batch_rewards  = [], [], []
 
         # Save checkpoint
         if self.save_path is not None:
             save_path = self.saver.save(self.sess, self.save_path)
            # print("Model saved in file: %s" % save_path)
 
-        return discounted_episode_rewards_norm
+        return discounted_batch_rewards_norm
 
     # 3.1 Discount and normalize rewards
     def discount_and_norm_rewards(self):
-        discounted_episode_rewards = np.zeros_like(self.episode_rewards, dtype=float)
-        print(len(self.episode_rewards))
-        print("reward mean from PG: ", np.mean(self.episode_rewards) * 100)
+        discounted_batch_rewards = np.zeros_like(self.batch_rewards, dtype=float)
+        print("length of episode rewards", len(self.batch_rewards))
+        print("reward mean from PG: ", np.mean(self.batch_rewards) * 100)
         cumulative = 0
-        for t in reversed(range(len(self.episode_rewards))):
-            cumulative = cumulative * self.gamma + self.episode_rewards[t]
-            discounted_episode_rewards[t] = cumulative
+        for t in reversed(range(len(self.batch_rewards))):
+            cumulative = cumulative * self.gamma + self.batch_rewards[t]
+            discounted_batch_rewards[t] = cumulative
 
-       # print("MEAN\n", np.mean(discounted_episode_rewards))
-        discounted_episode_rewards -= np.mean(discounted_episode_rewards)
-        discounted_episode_rewards /= np.std(discounted_episode_rewards)
-        return discounted_episode_rewards
+       # print("MEAN\n", np.mean(discounted_batch_rewards))
+        discounted_batch_rewards -= np.mean(discounted_batch_rewards)
+        discounted_batch_rewards /= np.std(discounted_batch_rewards)
+        return discounted_batch_rewards
 
 
     def plot_cost(self):

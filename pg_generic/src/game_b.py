@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/24 20:09:22 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 15:01:22 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -206,7 +206,14 @@ class Game:
         self.step_index += 1
         reward = self.google_engineer.do(action)
         #done = self.step_index >= self.max_steps
-        done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
+#        done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
+        can_inc = self.google_engineer.pizza.can_increase_more()
+        if can_inc and self.step_index <= self.max_steps:
+            done = 0
+        else:
+            done = 1
+            if can_inc == 0:
+                reward = 84
         slices = sorted(self.google_engineer.valid_slices, key=lambda s: s.as_tuple)
 
         self.env = {

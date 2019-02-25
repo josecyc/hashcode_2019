@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:55:13 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 09:52:22 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 15:01:18 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,9 +20,10 @@ import numpy as np
 
 RENDER_ENV = True
 BATCHES = 1000
-P_GAMES = 1
+P_GAMES = 500
 STEPS = 100
 rewards = []
+batch_rewards = []
 RENDER_REWARD_MIN = 100
 true_max_reward_so_far = 0
 
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     for batch in range(BATCHES):
         for p_game in range(P_GAMES):
             env = game_b.Game({'max_steps': 100})
-            episode_reward = 0
+            batch_reward = 0
             h = 5			
             l = 1
             pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
@@ -83,13 +84,14 @@ if __name__ == "__main__":
                 # Save new state
                 #state = state_
                 if done:
-                    episode_rewards_sum = sum(PG.episode_rewards)
+                    batch_rewards.append(sum(PG.game_rewards))
+                    batch_rewards_sum = sum(PG.batch_rewards)
                    # print(episode_rewards)
-                    print("episode_rewards_sum", episode_rewards_sum)
-                    rewards.append(episode_rewards_sum)
-                    print("rewards", rewards)
-                    max_reward_so_far = np.amax(rewards)
-                    print("max_reward_so_far", max_reward_so_far)
+                    #print("batch_rewards_sum", batch_rewards_sum)
+                    rewards.append(batch_rewards_sum)
+                    #print("partial reward mean", batch_rewards_sum/(p_game + 1))
+                    max_reward_so_far = np.amax(batch_rewards)
+                    #print("max_reward_so_far", max_reward_so_far)
 
                     #print("==========================================")
                     #print("p_game: ", p_game)
@@ -97,13 +99,16 @@ if __name__ == "__main__":
                     #print("Reward: ", episode_rewards_sum)
                     #print("Max Batch reward so far: ", max_reward_so_far)
 
+            #print("game: ", p_game, )
             # 4. Train neural network
-        reward_mean = episode_rewards_sum/P_GAMES
+            PG.game_rewards = []
+        reward_mean = batch_rewards_sum/P_GAMES
         if true_max_reward_so_far < max_reward_so_far:
             true_max_reward_so_far = max_reward_so_far
         print("Make it train... after batch : ", batch)
         print("Reward mean = ", reward_mean)
         print("Max Batch reward so far: ", true_max_reward_so_far)
-        discounted_episode_rewards_norm = PG.learn()
+        print("batch: ", batch, "\nbatch_rewards: ", batch_rewards)
+        discounted_batch_rewards_norm = PG.learn()
             
     PG.plot_cost()
