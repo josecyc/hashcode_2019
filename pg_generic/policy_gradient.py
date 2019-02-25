@@ -119,14 +119,16 @@ class PolicyGradient:
             loss = tf.reduce_mean(neg_log_prob * self.discounted_episode_rewards_norm)  # reward guided loss
             print("\n\nSELF EPISODE REWARDS", self.episode_rewards, "\n\n")
             tf.summary.scalar('loss', loss)
-            reward_mean = tf.metrics.mean(self.episode_rewards)
-            #get_variable(name="rew_mean", np.mean(self.episode_rewards)
-            #tf.summary.scalar('average reward per batch', np.mean(self.episode_rewards) * 1000)  
-            tf.summary.scalar('average reward per batch', reward_mean)  
-        self.summaries = tf.summary.merge_all()
+
         with tf.name_scope('train'):
             self.global_step = tf.train.get_or_create_global_step()
             self.train_op = tf.train.AdamOptimizer(self.lr).minimize(loss, global_step=self.global_step)
+
+        with tf.name_scope('rewards'):
+            reward_mean = tf.metrics.mean(self.episode_rewards)
+            tf.summary.scalar('reward_mean', reward_mean)
+            #get_variable(name="rew_mean", np.mean(self.episode_rewards)
+        self.summaries = tf.summary.merge_all()
 
     # 1. Choose action based on observation (state)
     def choose_action(self, observation):
@@ -198,7 +200,7 @@ class PolicyGradient:
     def discount_and_norm_rewards(self):
         discounted_episode_rewards = np.zeros_like(self.episode_rewards, dtype=float)
         print(len(self.episode_rewards))
-        print("reward mean from PG: ", np.mean(self.episode_rewards))
+        print("reward mean from PG: ", np.mean(self.episode_rewards) * 100)
         cumulative = 0
         for t in reversed(range(len(self.episode_rewards))):
             cumulative = cumulative * self.gamma + self.episode_rewards[t]

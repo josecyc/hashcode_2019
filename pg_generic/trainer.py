@@ -20,10 +20,11 @@ import numpy as np
 
 RENDER_ENV = True
 BATCHES = 1000
-P_GAMES = 500
+P_GAMES = 1
 STEPS = 100
 rewards = []
 RENDER_REWARD_MIN = 100
+true_max_reward_so_far = 0
 
 R = 6
 C = 7
@@ -83,8 +84,12 @@ if __name__ == "__main__":
                 #state = state_
                 if done:
                     episode_rewards_sum = sum(PG.episode_rewards)
+                   # print(episode_rewards)
+                    print("episode_rewards_sum", episode_rewards_sum)
                     rewards.append(episode_rewards_sum)
+                    print("rewards", rewards)
                     max_reward_so_far = np.amax(rewards)
+                    print("max_reward_so_far", max_reward_so_far)
 
                     #print("==========================================")
                     #print("p_game: ", p_game)
@@ -94,8 +99,11 @@ if __name__ == "__main__":
 
             # 4. Train neural network
         reward_mean = episode_rewards_sum/P_GAMES
+        if true_max_reward_so_far < max_reward_so_far:
+            true_max_reward_so_far = max_reward_so_far
         print("Make it train... after batch : ", batch)
         print("Reward mean = ", reward_mean)
+        print("Max Batch reward so far: ", true_max_reward_so_far)
         discounted_episode_rewards_norm = PG.learn()
             
     PG.plot_cost()
