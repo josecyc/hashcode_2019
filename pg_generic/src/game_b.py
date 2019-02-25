@@ -1,5 +1,17 @@
-from google_engineer import GoogleEngineer
-from pizza import Pizza
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    game_b.py                                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
+#    Updated: 2019/02/24 20:09:22 by jcruz-y-         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+from src.google_e import GoogleEngineer
+from src.pizza import Pizza
 
 import numpy as np
 import json
@@ -15,7 +27,11 @@ class KeyInput:
         'a': 'left',
         's': 'down',
         'd': 'right',
-        ' ': 'toggle',
+        #' ': 'toggle',
+	'i': 'cut_up',
+	'j': 'cut_left',
+	'k': 'cut_down',
+	'l': 'cut_right'
     }
 
     def __init__(self):
@@ -44,7 +60,7 @@ class KeyInput:
     def next(self):
         while True:
             next_char = self.next_char().lower()
-            if next_char in 'wasd ':
+            if next_char in 'wasdijkl':
                 return self.key_to_action[next_char]
             elif next_char == 'q' or next_char == '\x03':
                 raise EOFError('End of input.')
@@ -165,13 +181,13 @@ class Game:
         self.max_steps = args.get('max_steps', float('inf'))
         self.env = None
         self.serve_pizza = ServePizza()
+        #print("__INIT__")
 
     def init(self, pizza_config):
         self.google_engineer = GoogleEngineer(pizza_config)
         self.unique_ingredients = self.google_engineer.pizza.ingredients._unique.tolist()
 
         self.step_index = 0
-
         self.env = {
             'state': self.google_engineer.state(),
             'reward': 0,
@@ -186,8 +202,10 @@ class Game:
 
 
     def step(self, action):
+
         self.step_index += 1
         reward = self.google_engineer.do(action)
+        #done = self.step_index >= self.max_steps
         done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
         slices = sorted(self.google_engineer.valid_slices, key=lambda s: s.as_tuple)
 
@@ -371,7 +389,7 @@ if __name__ == '__main__':
                 json.dump(game.env, f, separators=(',',':'))
 
         if not quiet:
-            print('Now you can use WASD keys to move/increase and space bar for toggling slice mode. Press CTRL-C or q to exit.')
+            print('Now you can use WASD keys to move/increase and space bar for toggling elice mode. Press CTRL-C or q to exit.')
             print()
 
         # run game
@@ -398,7 +416,7 @@ if __name__ == '__main__':
                 with open(env_filename, 'w') as f:
                     json.dump(game.env, f, separators=(',',':'))
 
-            # save slices
+            # savee
             if output:
                 with open(output, 'w') as f:
                     slices = game.env['information']['slices']

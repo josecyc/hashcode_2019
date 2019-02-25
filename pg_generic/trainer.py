@@ -6,11 +6,11 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:55:13 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/23 11:08:47 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 09:52:22 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-from src import game
+from src import game_b
 from policy_gradient import PolicyGradient
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,8 +19,8 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 2
-P_GAMES = 10
+BATCHES = 1000
+P_GAMES = 500
 STEPS = 100
 rewards = []
 RENDER_REWARD_MIN = 100
@@ -28,7 +28,8 @@ RENDER_REWARD_MIN = 100
 R = 6
 C = 7
 X_DIM = R * C * 2 + 5
-ACTIONS = ["right", "down", "left", "up", "toggle"]
+#ACTIONS = ["right", "down", "left", "up", "toggle"]
+ACTIONS = ["right", "down", "left", "up", "cut_up", "cut_left", "cut_down", "cut_right"]
 
 def preprocess(state_dict):
 	state = np.concatenate((
@@ -43,14 +44,13 @@ def preprocess(state_dict):
 
 if __name__ == "__main__":
 
-
     # Load checkpoint
     load_path = None #"./output/weights/pizza-temp.ckpt"
     save_path = "output/weights/pizza-temp.ckpt"
 
     PG = PolicyGradient(
             n_x = X_DIM,
-            n_y = 5,
+            n_y = 8,
             learning_rate=0.01,
             reward_decay=0.95,
             load_path=load_path,
@@ -59,21 +59,17 @@ if __name__ == "__main__":
 
     for batch in range(BATCHES):
         for p_game in range(P_GAMES):
-            env = game.Game({'max_steps': 100})
+            env = game_b.Game({'max_steps': 100})
             episode_reward = 0
             h = 5			
             l = 1
             pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
             pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
             state = env.init(pizza_config)[0]
-            #print("\nPIZZA CONFIG: ", pizza_config)
-            #print("\nSTATE: ", state)
-          #  print("\n\nSTATE[0]", state[0])
 	    #state[0] #get only first value of tuple
             for step in range(STEPS):
                 #if RENDER_ENV: 
                 #    env.render()
-                # sample one action with the given probability distribution
                 # 1. Choose an action based on observation
                 action = PG.choose_action(state)
 
@@ -90,15 +86,16 @@ if __name__ == "__main__":
                     rewards.append(episode_rewards_sum)
                     max_reward_so_far = np.amax(rewards)
 
-                    print("==========================================")
-                    print("p_game: ", p_game)
-                    print("batch: ", batch)
-                    print("Reward: ", episode_rewards_sum)
-                    print("Max Batch reward so far: ", max_reward_so_far)
+                    #print("==========================================")
+                    #print("p_game: ", p_game)
+                    #print("batch: ", batch)
+                    #print("Reward: ", episode_rewards_sum)
+                    #print("Max Batch reward so far: ", max_reward_so_far)
 
             # 4. Train neural network
-        #print("Make it train... after batch :") #p_game)
+        reward_mean = episode_rewards_sum/P_GAMES
+        print("Make it train... after batch : ", batch)
+        print("Reward mean = ", reward_mean)
         discounted_episode_rewards_norm = PG.learn()
-        
-           
+            
     PG.plot_cost()
