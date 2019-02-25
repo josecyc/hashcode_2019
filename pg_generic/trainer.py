@@ -19,9 +19,9 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 10
-P_GAMES = 1
-STEPS = 1
+BATCHES = 2
+P_GAMES = 10
+STEPS = 100
 rewards = []
 RENDER_REWARD_MIN = 100
 
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 
     # Load checkpoint
-    load_path = "./output/weights/pizza-temp.ckpt"
+    load_path = None #"./output/weights/pizza-temp.ckpt"
     save_path = "output/weights/pizza-temp.ckpt"
 
     PG = PolicyGradient(
@@ -66,13 +66,13 @@ if __name__ == "__main__":
             pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
             pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
             state = env.init(pizza_config)[0]
-            print("\nPIZZA CONFIG: ", pizza_config)
-            print("\nSTATE: ", state)
-            print("\n\nSTATE[0]", state[0])
+            #print("\nPIZZA CONFIG: ", pizza_config)
+            #print("\nSTATE: ", state)
+          #  print("\n\nSTATE[0]", state[0])
 	    #state[0] #get only first value of tuple
             for step in range(STEPS):
-                if RENDER_ENV: 
-                    env.render()
+                #if RENDER_ENV: 
+                #    env.render()
                 # sample one action with the given probability distribution
                 # 1. Choose an action based on observation
                 action = PG.choose_action(state)
@@ -94,10 +94,11 @@ if __name__ == "__main__":
                     print("p_game: ", p_game)
                     print("batch: ", batch)
                     print("Reward: ", episode_rewards_sum)
-                    print("Max reward so far: ", max_reward_so_far)
+                    print("Max Batch reward so far: ", max_reward_so_far)
 
             # 4. Train neural network
-        print("Make it train... after batch :") #p_game)
+        #print("Make it train... after batch :") #p_game)
         discounted_episode_rewards_norm = PG.learn()
+        
            
     PG.plot_cost()

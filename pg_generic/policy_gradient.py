@@ -71,6 +71,7 @@ class PolicyGradient:
         if load_path is not None:
             self.load_path = load_path
             self.saver.restore(self.sess, self.load_path)
+            print("model restored")
 
     def store_transition(self, s, a, r):
         """
@@ -98,7 +99,7 @@ class PolicyGradient:
             Returns: index of action we want to choose
         """
         # Reshape observation to (num_features, 1)
-        print(observation)
+        #print(observation)
         observation = preprocess(observation)
         observation = observation[:, np.newaxis]
         
@@ -115,7 +116,7 @@ class PolicyGradient:
         # Discount and normalize episode reward
         discounted_episode_rewards_norm = self.discount_and_norm_rewards()
 
-        # Train on episode
+        # Train on episode (batch)
         _, summaries, global_step = self.sess.run([self.train_op, self.summaries, self.global_step], feed_dict={
              self.X: np.vstack(self.episode_observations).T,
              self.Y: np.vstack(np.array(self.episode_actions)).T,
@@ -130,7 +131,7 @@ class PolicyGradient:
         # Save checkpoint
         if self.save_path is not None:
             save_path = self.saver.save(self.sess, self.save_path)
-            print("Model saved in file: %s" % save_path)
+           # print("Model saved in file: %s" % save_path)
 
         return discounted_episode_rewards_norm
 
@@ -189,7 +190,9 @@ class PolicyGradient:
         with tf.name_scope('loss'):
             neg_log_prob = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
             loss = tf.reduce_mean(neg_log_prob * self.discounted_episode_rewards_norm)  # reward guided loss
+            print("\n\nSELF EPISODE REWARDS", self.episode_rewards, "\n\n")
             tf.summary.scalar('loss', loss)
+	    #tf.summary.scalar('average reward per batch', 
         self.summaries = tf.summary.merge_all()
         with tf.name_scope('train'):
             self.global_step = tf.train.get_or_create_global_step()
