@@ -19,8 +19,8 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 1
-P_GAMES = 1
+BATCHES = 100
+P_GAMES = 250
 STEPS = 100
 rewards = []
 batch_rewards = []
@@ -30,21 +30,21 @@ true_max_reward_so_far = 0
 
 R = 6
 C = 7
-X_DIM = R * C * 2 + 5
+X_DIM = R * C * 3 + 3
 #ACTIONS = ["right", "down", "left", "up", "toggle"]
 ACTIONS = ["right", "down", "left", "up", "cut_right", "cut_down", "cut_up", "cut_left"]
 
 def preprocess(state_dict):
     cursor_map = np.zeros(np.array(state_dict['ingredients_map']).shape)
-    print(state_dict['cursor_position'])
+    #print(state_dict['cursor_position'])
     cursor_map[state_dict['cursor_position']] = 1
-    print(cursor_map)
-    print(cursor_map.ravel())
+    #print(cursor_map)
+    #print("INPUT CURSOR MAP:\n", cursor_map.ravel())
     state = np.concatenate((
             np.array(state_dict['ingredients_map']).ravel(),
             np.array(state_dict['slices_map']).ravel(),
             cursor_map.ravel(),
-            np.array(state_dict['cursor_position']).ravel(),
+      #      np.array(state_dict['cursor_position']).ravel(),
             [state_dict['slice_mode'],
             state_dict['min_each_ingredient_per_slice'],
             state_dict['max_ingredients_per_slice']],
@@ -81,6 +81,7 @@ if __name__ == "__main__":
                 #    env.render()
                 # 1. Choose an action based on observation
                 state = preprocess(state)
+                #print("NEW STATE\n", state)
                 action = PG.choose_action(state)
 
                 # 2. Take action in the environment

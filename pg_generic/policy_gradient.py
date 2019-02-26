@@ -19,7 +19,7 @@ import numpy as np
 from tensorflow.python.framework import ops
 #import cartpole
 
-def preprocess(state_dict):
+'''def preprocess(state_dict):
 	state = np.concatenate((
 		np.array(state_dict['ingredients_map']).ravel(),
 		np.array(state_dict['slices_map']).ravel(),
@@ -28,7 +28,7 @@ def preprocess(state_dict):
 		state_dict['min_each_ingredient_per_slice'],
 		state_dict['max_ingredients_per_slice']],
 	))
-	return state.astype(np.float).ravel()
+	return state.astype(np.float).ravel()'''
 
 class PolicyGradient:
     def __init__(
