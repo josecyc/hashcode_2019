@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 21:33:05 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/26 13:39:28 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -206,9 +206,11 @@ class Game:
         self.step_index += 1
         reward = self.google_engineer.do(action)
         fract = self.env['information']['score']/(42.0)
-        print ("scoreeee:", self.env['information']['score'])
-        if fract < 0.2:
-            reward = reward
+       # print ("scoreeee:", self.env['information']['score'])
+        if fract >= 0.95:
+            reward = reward*64
+        elif fract >= 0.9:
+            reward = reward*32
         elif fract >= 0.8:
             reward = reward*16
         elif fract >= 0.6:
@@ -218,25 +220,20 @@ class Game:
         else:
             reward = reward*2
         #done = self.step_index >= self.max_steps
-        can_inc = self.google_engineer.pizza.can_increase_more()
-        if can_inc and self.step_index <= self.max_steps:
-            done = 0
-        else:
-            done = 1
-            if can_inc == 0:
-                reward = 84
+       # if self.env['information']['score'] == (self.r * self.c):
+       #     reward = reward * (self.r * self.c)
+        #can_inc = self.google_engineer.pizza.can_increase_more()
+       # if can_inc and self.step_index <= self.max_steps:
+       #     done = 0
+       # else:
+       #     done = 1
+       #     if can_inc == 0:
+       #         reward = 84
     #def step(self, action):
     #    self.step_index += 1
     #    reward = self.google_engineer.do(action)
     #    #done = self.step_index >= self.max_steps
-    #    done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
-        '''  can_inc = self.google_engineer.pizza.can_increase_more()
-        if can_inc and self.step_index <= self.max_steps:
-            done = 0
-        else:
-            done = 1
-            if can_inc == 0:
-                reward = 84'''
+        done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
         slices = sorted(self.google_engineer.valid_slices, key=lambda s: s.as_tuple)
 
         self.env = {
@@ -369,7 +366,7 @@ if __name__ == '__main__':
     game = Game(game_args)
 
     if not quiet:
-        print(game.hello)
+       # print(game.hello)
         print('\n Game rules:\n')
         print(game_rules)
         print()
@@ -388,7 +385,7 @@ if __name__ == '__main__':
 
         config_line = input('')
         print()
-        r, c, l, h = [int(n) for n in config_line.split(' ')]
+        self.r, self.c, self.l, self.h = [int(n) for n in config_line.split(' ')]
 
         pizza_lines = []
         if not quiet:
@@ -407,7 +404,7 @@ if __name__ == '__main__':
             pizza_lines.append(input(''))
 
         print()
-        pizza_config = { 'pizza_lines': pizza_lines, 'r': r, 'c': c, 'l': l, 'h': h }
+        pizza_config = { 'pizza_lines': pizza_lines, 'r': self.r, 'c': self.c, 'l': self.l, 'h': self.h }
 
         # init game
         game.init(pizza_config)

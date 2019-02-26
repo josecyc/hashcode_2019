@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:55:13 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 19:05:00 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/26 13:59:26 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,8 +19,8 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 200
-P_GAMES = 250
+BATCHES = 1
+P_GAMES = 1
 STEPS = 100
 rewards = []
 batch_rewards = []
@@ -32,18 +32,24 @@ R = 6
 C = 7
 X_DIM = R * C * 2 + 5
 #ACTIONS = ["right", "down", "left", "up", "toggle"]
-ACTIONS = ["right", "down", "left", "up", "cut_up", "cut_left", "cut_down", "cut_right"]
+ACTIONS = ["right", "down", "left", "up", "cut_right", "cut_down", "cut_up", "cut_left"]
 
 def preprocess(state_dict):
-	state = np.concatenate((
-		np.array(state_dict['ingredients_map']).ravel(),
-		np.array(state_dict['slices_map']).ravel(),
-		np.array(state_dict['cursor_position']).ravel(),
-		[state_dict['slice_mode'],
-		state_dict['min_each_ingredient_per_slice'],
-		state_dict['max_ingredients_per_slice']],
+    cursor_map = np.zeros(np.array(state_dict['ingredients_map']).shape)
+    print(state_dict['cursor_position'])
+    cursor_map[state_dict['cursor_position']] = 1
+    print(cursor_map)
+    print(cursor_map.ravel())
+    state = np.concatenate((
+            np.array(state_dict['ingredients_map']).ravel(),
+            np.array(state_dict['slices_map']).ravel(),
+            cursor_map.ravel(),
+            np.array(state_dict['cursor_position']).ravel(),
+            [state_dict['slice_mode'],
+            state_dict['min_each_ingredient_per_slice'],
+            state_dict['max_ingredients_per_slice']],
 	))
-	return state.astype(np.float).ravel()
+    return state.astype(np.float).ravel()
 
 if __name__ == "__main__":
 
@@ -74,17 +80,19 @@ if __name__ == "__main__":
                 #if RENDER_ENV: 
                 #    env.render()
                 # 1. Choose an action based on observation
+                state = preprocess(state)
                 action = PG.choose_action(state)
 
                 # 2. Take action in the environment
                 state_, reward, done, info = env.step(ACTIONS[action])
 
                 # 3. Store transition for training
-                PG.store_transition(preprocess(state), action, reward)
+                PG.store_transition(state, action, reward)
             
                 # Save new state
-                #state = state_
-                #if done:
+                state = state_
+                if done:
+                    break
             game_score = sum(PG.game_rewards)
             #print("game_score", game_score)
             game_scores.append(game_score)
@@ -106,12 +114,14 @@ if __name__ == "__main__":
             #print("game: ", p_game, )
             # 4. Train neural network
         #reward_mean = batch_rewards_sum/P_GAMES
-        reward_mean = sum(game_scores)/P_GAMES
+        if true_max_reward_so_far < max_reward_so_far:
+            print("\nNEW MAX REWARD:", max_reward_so_far, "\n")
+            env.render()
+            true_max_reward_so_far = max_reward_so_far
         print("\n\nlen game_scores", len(game_scores))
         print("game_scores", game_scores)
+        reward_mean = sum(game_scores)/P_GAMES
         game_scores = []
-        if true_max_reward_so_far < max_reward_so_far:
-            true_max_reward_so_far = max_reward_so_far
         print("Make it train... after batch : ", batch)
         print("Game reward mean = ", reward_mean)
         print("Max Batch reward so far: ", true_max_reward_so_far)

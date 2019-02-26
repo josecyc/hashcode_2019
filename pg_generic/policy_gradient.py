@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:35:16 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 21:22:50 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/26 13:50:16 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -139,7 +139,7 @@ class PolicyGradient:
             Returns: index of action we want to choose
         """
         # Reshape observation to (num_features, 1)
-        observation = preprocess(observation)
+        #observation = preprocess(observation)
         observation = observation[:, np.newaxis]
         
         # Run forward propagation to get softmax probabilities
