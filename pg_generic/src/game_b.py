@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 19:09:31 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 21:33:05 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -205,8 +205,31 @@ class Game:
 
         self.step_index += 1
         reward = self.google_engineer.do(action)
+        fract = self.env['information']['score']/(42.0)
+        print ("scoreeee:", self.env['information']['score'])
+        if fract < 0.2:
+            reward = reward
+        elif fract >= 0.8:
+            reward = reward*16
+        elif fract >= 0.6:
+            reward = reward*8
+        elif fract >= 0.4:
+            reward = reward*4
+        else:
+            reward = reward*2
         #done = self.step_index >= self.max_steps
-        done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
+        can_inc = self.google_engineer.pizza.can_increase_more()
+        if can_inc and self.step_index <= self.max_steps:
+            done = 0
+        else:
+            done = 1
+            if can_inc == 0:
+                reward = 84
+    #def step(self, action):
+    #    self.step_index += 1
+    #    reward = self.google_engineer.do(action)
+    #    #done = self.step_index >= self.max_steps
+    #    done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
         '''  can_inc = self.google_engineer.pizza.can_increase_more()
         if can_inc and self.step_index <= self.max_steps:
             done = 0

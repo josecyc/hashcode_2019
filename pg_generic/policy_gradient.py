@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:35:16 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 19:02:44 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 21:22:50 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -111,7 +111,7 @@ class PolicyGradient:
 
         # Softmax outputs, we need to transpose as tensorflow nn functions expects them in this shape
         logits = tf.transpose(Z3, name='tran_log_probs')
-        labels = tf.transpose(self.Y, name='tran_vector_size_action_space')
+        labels = tf.transpose(self.Y, name='actions_one_hot_v_t')
         self.outputs_softmax = tf.nn.softmax(logits, name='softy')
 
         with tf.name_scope('loss'):
@@ -209,8 +209,8 @@ class PolicyGradient:
             discounted_batch_rewards[t] = cumulative
 
        # print("MEAN\n", np.mean(discounted_batch_rewards))
-        discounted_batch_rewards -= np.mean(discounted_batch_rewards)
-        discounted_batch_rewards /= np.std(discounted_batch_rewards)
+        #discounted_batch_rewards -= np.mean(discounted_batch_rewards)
+        #discounted_batch_rewards /= np.std(discounted_batch_rewards)
         return discounted_batch_rewards
 
 
