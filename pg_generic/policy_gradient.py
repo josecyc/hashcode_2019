@@ -35,7 +35,7 @@ class PolicyGradient:
         self,
         n_x,
         n_y,
-        learning_rate=0.01,
+        learning_rate=0.05,
         reward_decay=0.95,
         load_path=None,
         save_path=None

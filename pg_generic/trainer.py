@@ -19,7 +19,7 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 100
+BATCHES = 1000
 P_GAMES = 250
 STEPS = 100
 rewards = []
@@ -31,7 +31,6 @@ true_max_reward_so_far = 0
 R = 6
 C = 7
 X_DIM = R * C * 3 + 3
-#ACTIONS = ["right", "down", "left", "up", "toggle"]
 ACTIONS = ["right", "down", "left", "up", "cut_right", "cut_down", "cut_up", "cut_left"]
 
 def preprocess(state_dict):
