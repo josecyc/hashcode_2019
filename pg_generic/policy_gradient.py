@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:35:16 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 14:07:46 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 19:02:44 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -201,8 +201,8 @@ class PolicyGradient:
     # 3.1 Discount and normalize rewards
     def discount_and_norm_rewards(self):
         discounted_batch_rewards = np.zeros_like(self.batch_rewards, dtype=float)
-        print("length of episode rewards", len(self.batch_rewards))
-        print("reward mean from PG: ", np.mean(self.batch_rewards) * 100)
+        #print("length of episode rewards", len(self.batch_rewards))
+        #print("reward mean from PG: ", np.mean(self.batch_rewards) * 100)
         cumulative = 0
         for t in reversed(range(len(self.batch_rewards))):
             cumulative = cumulative * self.gamma + self.batch_rewards[t]

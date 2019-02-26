@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 15:01:22 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 19:09:31 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -151,31 +151,31 @@ class ServePizza:
 
 class Game:
 
-    legend = '\n' + \
-        '                                           +---------+\n' + \
-        '  Legend: T M - ingredients  [ ] - cursor  | T  `  M | - slice boundaries\n' + \
-        '                                           +---------+'
-
-    hello = '\n' + \
-        '             _)                                    |    |   _)               \n' + \
-        '       __ \   | _  / _  /   _` |       __|  |   |  __|  __|  |  __ \    _` | \n' + \
-        '       |   |  |   /    /   (   |      (     |   |  |    |    |  |   |  (   | \n' + \
-        '       .__/  _| ___| ___| \__,_|     \___| \__,_| \__| \__| _| _|  _| \__, | \n' + \
-        '      _|                                                              |___/  \n' + \
-        '\n' + \
-        '  |                 |                      _)                    |         |                \n' + \
-        '  __|  |   |   __|  __ \    _ \        __|  |  __ `__ \   |   |  |   _` |  __|   _ \    __| \n' + \
-        '  |    |   |  |     |   |  (   |     \__ \  |  |   |   |  |   |  |  (   |  |    (   |  |    \n' + \
-        ' \__| \__,_| _|    _.__/  \___/      ____/ _| _|  _|  _| \__,_| _| \__,_| \__| \___/  _|    \n' + \
-        '\n' + \
-        '\n' + \
-        '       Welcome to my gameplay where I cut a pizza LIVE for my friends!\n' + \
-        '\n' + \
-        '                   76 69 76 65  6C 61  70 69 7A 7A 61 \n' + \
-        '\n' + \
-        '\n'
-
-    goodbye = '\nBon appetit !'
+  #  legend = '\n' + \
+  #      '                                           +---------+\n' + \
+  #      '  Legend: T M - ingredients  [ ] - cursor  | T  `  M | - slice boundaries\n' + \
+  #      '                                           +---------+'
+#
+#    hello = '\n' + \
+#        '             _)                                    |    |   _)               \n' + \
+#        '       __ \   | _  / _  /   _` |       __|  |   |  __|  __|  |  __ \    _` | \n' + \
+#        '       |   |  |   /    /   (   |      (     |   |  |    |    |  |   |  (   | \n' + \
+#        '       .__/  _| ___| ___| \__,_|     \___| \__,_| \__| \__| _| _|  _| \__, | \n' + \
+#        '      _|                                                              |___/  \n' + \
+#        '\n' + \
+#        '  |                 |                      _)                    |         |                \n' + \
+#        '  __|  |   |   __|  __ \    _ \        __|  |  __ `__ \   |   |  |   _` |  __|   _ \    __| \n' + \
+#        '  |    |   |  |     |   |  (   |     \__ \  |  |   |   |  |   |  |  (   |  |    (   |  |    \n' + \
+#        ' \__| \__,_| _|    _.__/  \___/      ____/ _| _|  _|  _| \__,_| _| \__,_| \__| \___/  _|    \n' + \
+#        '\n' + \
+#        '\n' + \
+#        '       Welcome to my gameplay where I cut a pizza LIVE for my friends!\n' + \
+#        '\n' + \
+#        '                   76 69 76 65  6C 61  70 69 7A 7A 61 \n' + \
+#        '\n' + \
+#        '\n'
+#
+#   goodbye = '\nBon appetit !'
 
     def __init__(self, args):
         self.max_steps = args.get('max_steps', float('inf'))
@@ -206,14 +206,14 @@ class Game:
         self.step_index += 1
         reward = self.google_engineer.do(action)
         #done = self.step_index >= self.max_steps
-#        done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
-        can_inc = self.google_engineer.pizza.can_increase_more()
+        done = not self.google_engineer.pizza.can_increase_more() or self.step_index >= self.max_steps
+        '''  can_inc = self.google_engineer.pizza.can_increase_more()
         if can_inc and self.step_index <= self.max_steps:
             done = 0
         else:
             done = 1
             if can_inc == 0:
-                reward = 84
+                reward = 84'''
         slices = sorted(self.google_engineer.valid_slices, key=lambda s: s.as_tuple)
 
         self.env = {
@@ -243,14 +243,13 @@ class Game:
         print('  Step:                             {}'.format(self.env['information']['step']))
         print('  Score:                            {}'.format(self.env['information']['score']))
         print('')
-        print('')
 
 
     def render(self):
-        print(self.hello)
+       # print(self.hello)
         self.render_information()
         self.serve_pizza.print_from(self.env)
-        print(self.legend)
+        #print(self.legend)
 
 
 

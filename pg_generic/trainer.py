@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:55:13 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/25 15:01:18 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/25 19:05:00 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,11 +19,12 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 1000
-P_GAMES = 500
+BATCHES = 200
+P_GAMES = 250
 STEPS = 100
 rewards = []
 batch_rewards = []
+game_scores = []
 RENDER_REWARD_MIN = 100
 true_max_reward_so_far = 0
 
@@ -63,8 +64,8 @@ if __name__ == "__main__":
         for p_game in range(P_GAMES):
             env = game_b.Game({'max_steps': 100})
             batch_reward = 0
-            h = 5			
-            l = 1
+            h = 6			
+            l = 2
             pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
             pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
             state = env.init(pizza_config)[0]
@@ -83,32 +84,39 @@ if __name__ == "__main__":
             
                 # Save new state
                 #state = state_
-                if done:
-                    batch_rewards.append(sum(PG.game_rewards))
-                    batch_rewards_sum = sum(PG.batch_rewards)
-                   # print(episode_rewards)
-                    #print("batch_rewards_sum", batch_rewards_sum)
-                    rewards.append(batch_rewards_sum)
-                    #print("partial reward mean", batch_rewards_sum/(p_game + 1))
-                    max_reward_so_far = np.amax(batch_rewards)
-                    #print("max_reward_so_far", max_reward_so_far)
+                #if done:
+            game_score = sum(PG.game_rewards)
+            #print("game_score", game_score)
+            game_scores.append(game_score)
+            #print("game_scores", game_scores)
+            #batch_rewards_sum = sum(PG.batch_rewards)
+            #print("batch_rewards_sum", batch_rewards_sum)
+            #rewards.append(batch_rewards_sum)
+            #print("rewards", rewards)
+            #print("partial reward mean", batch_rewards_sum/(p_game + 1))
+            max_reward_so_far = np.amax(game_scores)
+            #print("max_reward_so_far", max_reward_so_far)
 
-                    #print("==========================================")
-                    #print("p_game: ", p_game)
-                    #print("batch: ", batch)
-                    #print("Reward: ", episode_rewards_sum)
-                    #print("Max Batch reward so far: ", max_reward_so_far)
-
+            #print("==========================================")
+            #print("p_game: ", p_game)
+            #print("batch: ", batch)
+            #print("Reward: ", episode_rewards_sum)
+            #print("Max Batch reward so far: ", max_reward_so_far)
+            PG.game_rewards = []
             #print("game: ", p_game, )
             # 4. Train neural network
-            PG.game_rewards = []
-        reward_mean = batch_rewards_sum/P_GAMES
+        #reward_mean = batch_rewards_sum/P_GAMES
+        reward_mean = sum(game_scores)/P_GAMES
+        print("\n\nlen game_scores", len(game_scores))
+        print("game_scores", game_scores)
+        game_scores = []
         if true_max_reward_so_far < max_reward_so_far:
             true_max_reward_so_far = max_reward_so_far
         print("Make it train... after batch : ", batch)
-        print("Reward mean = ", reward_mean)
+        print("Game reward mean = ", reward_mean)
         print("Max Batch reward so far: ", true_max_reward_so_far)
-        print("batch: ", batch, "\nbatch_rewards: ", batch_rewards)
+        print("batch: ", batch)
+        env.render()
         discounted_batch_rewards_norm = PG.learn()
             
-    PG.plot_cost()
+    #PG.plot_cost()
