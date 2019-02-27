@@ -19,9 +19,9 @@ import numpy as np
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 1000
-P_GAMES = 250
-STEPS = 100
+BATCHES = 1
+P_GAMES = 1
+STEPS = 20
 rewards = []
 batch_rewards = []
 game_scores = []
@@ -70,7 +70,7 @@ if __name__ == "__main__":
             env = game_b.Game({'max_steps': 100})
             batch_reward = 0
             h = 6			
-            l = 2
+            l = 1
             pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
             pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
             state = env.init(pizza_config)[0]

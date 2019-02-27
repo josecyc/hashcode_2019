@@ -208,17 +208,23 @@ class Game:
         fract = self.env['information']['score']/(42.0)
        # print ("scoreeee:", self.env['information']['score'])
         if fract >= 0.95:
-            reward = reward*64
+            reward = reward*256
         elif fract >= 0.9:
-            reward = reward*32
+            reward = reward*128
         elif fract >= 0.8:
+            reward = reward*64
+        elif fract >= 0.75:
+            reward = reward*32
+        elif fract >= 0.7:
             reward = reward*16
-        elif fract >= 0.6:
+        elif fract >= 0.65:
             reward = reward*8
-        elif fract >= 0.4:
+        elif fract >= 0.6:
             reward = reward*4
-        else:
+        elif fract >= 0.4:
             reward = reward*2
+        else:
+            reward = reward
         #done = self.step_index >= self.max_steps
        # if self.env['information']['score'] == (self.r * self.c):
        #     reward = reward * (self.r * self.c)

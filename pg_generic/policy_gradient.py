@@ -64,8 +64,11 @@ class PolicyGradient:
 
         # $ tensorboard --logdir=logs
         # http://0.0.0.0:6006/
-        self.writer = tf.summary.FileWriter("logss/", self.sess.graph)
-
+	#logs/model_2018_1500_27
+        #self.writer = tf.summary.FileWriter("logss/", self.sess.graph)
+        from time import gmtime, strftime
+        s = strftime("pizza_m %a, %d %b %Y %H:%M", gmtime())
+        self.writer = tf.summary.FileWriter('logs/%s/' % s,self.sess.graph)
         # Initialize nodes with global variables
         self.sess.run(tf.global_variables_initializer())
 
@@ -211,6 +214,8 @@ class PolicyGradient:
        # print("MEAN\n", np.mean(discounted_batch_rewards))
         #discounted_batch_rewards -= np.mean(discounted_batch_rewards)
         #discounted_batch_rewards /= np.std(discounted_batch_rewards)
+        print("Batch Rewards: \n", self.batch_rewards)
+        print("Discounted batch rewards: \n", discounted_batch_rewards)
         return discounted_batch_rewards
 
 
