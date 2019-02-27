@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:55:13 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/26 13:59:26 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/27 10:40:09 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,53 +14,41 @@ from src import game_b
 from policy_gradient import PolicyGradient
 import matplotlib.pyplot as plt
 import numpy as np
+import boards as bd
+from time import gmtime, strftime
 
 # Policy gradient has high variance, seed for reproducability
 #env.seed(1)
 
 RENDER_ENV = True
-BATCHES = 1
-P_GAMES = 1
-STEPS = 20
+BATCHES = 2000
+P_GAMES = 750
+STEPS = 150
 rewards = []
 batch_rewards = []
 game_scores = []
-RENDER_REWARD_MIN = 100
 true_max_reward_so_far = 0
+Learning_rate = 0.002
+GAMMA = 0.95
 
 R = 6
 C = 7
 X_DIM = R * C * 3 + 3
 ACTIONS = ["right", "down", "left", "up", "cut_right", "cut_down", "cut_up", "cut_left"]
 
-def preprocess(state_dict):
-    cursor_map = np.zeros(np.array(state_dict['ingredients_map']).shape)
-    #print(state_dict['cursor_position'])
-    cursor_map[state_dict['cursor_position']] = 1
-    #print(cursor_map)
-    #print("INPUT CURSOR MAP:\n", cursor_map.ravel())
-    state = np.concatenate((
-            np.array(state_dict['ingredients_map']).ravel(),
-            np.array(state_dict['slices_map']).ravel(),
-            cursor_map.ravel(),
-      #      np.array(state_dict['cursor_position']).ravel(),
-            [state_dict['slice_mode'],
-            state_dict['min_each_ingredient_per_slice'],
-            state_dict['max_ingredients_per_slice']],
-	))
-    return state.astype(np.float).ravel()
-
 if __name__ == "__main__":
 
     # Load checkpoint
+    s = strftime("./output/weights/%a_%d_%b_%Y_%H:%M/pizza.ckpt", gmtime())
     load_path = None #"./output/weights/pizza-temp.ckpt"
-    save_path = "output/weights/pizza-temp.ckpt"
+    save_path = s
 
     PG = PolicyGradient(
             n_x = X_DIM,
             n_y = 8,
-            learning_rate=0.01,
-            reward_decay=0.95,
+            learning_rate=Learning_rate,
+            reward_decay=GAMMA,
+            steps=STEPS,
             load_path=load_path,
             save_path=save_path
             )
@@ -69,18 +57,15 @@ if __name__ == "__main__":
         for p_game in range(P_GAMES):
             env = game_b.Game({'max_steps': 100})
             batch_reward = 0
-            h = 6			
-            l = 1
-            pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
-            pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
+            #h = 6			
+            #l = 2
+            #pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
+            #pizza_config = { 'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h }
+            pizza_config = bd.rand_pizza(6, 7)
             state = env.init(pizza_config)[0]
-	    #state[0] #get only first value of tuple
             for step in range(STEPS):
-                #if RENDER_ENV: 
-                #    env.render()
                 # 1. Choose an action based on observation
-                state = preprocess(state)
-                #print("NEW STATE\n", state)
+                state = bd.preprocess(state)
                 action = PG.choose_action(state)
 
                 # 2. Take action in the environment
@@ -96,37 +81,41 @@ if __name__ == "__main__":
             game_score = sum(PG.game_rewards)
             #print("game_score", game_score)
             game_scores.append(game_score)
-            #print("game_scores", game_scores)
-            #batch_rewards_sum = sum(PG.batch_rewards)
-            #print("batch_rewards_sum", batch_rewards_sum)
-            #rewards.append(batch_rewards_sum)
-            #print("rewards", rewards)
-            #print("partial reward mean", batch_rewards_sum/(p_game + 1))
             max_reward_so_far = np.amax(game_scores)
-            #print("max_reward_so_far", max_reward_so_far)
-
-            #print("==========================================")
-            #print("p_game: ", p_game)
-            #print("batch: ", batch)
-            #print("Reward: ", episode_rewards_sum)
-            #print("Max Batch reward so far: ", max_reward_so_far)
             PG.game_rewards = []
-            #print("game: ", p_game, )
-            # 4. Train neural network
-        #reward_mean = batch_rewards_sum/P_GAMES
+            if p_game == (P_GAMES//2):
+                print("==========================================")
+                print("\nMIDDLE OF THE BATCH game: ", p_game)
+                env.render()
+                print("==========================================")
         if true_max_reward_so_far < max_reward_so_far:
             print("\nNEW MAX REWARD:", max_reward_so_far, "\n")
+            print("==========================================")
             env.render()
             true_max_reward_so_far = max_reward_so_far
-        print("\n\nlen game_scores", len(game_scores))
-        print("game_scores", game_scores)
+            print("==========================================")
+        print("==========================================")
+        print("len game_scores", len(game_scores))
+        print("game_scores\n", game_scores)
         reward_mean = sum(game_scores)/P_GAMES
         game_scores = []
-        print("Make it train... after batch : ", batch)
+        print("==========================================")
+        print("FINAL GAME OF BATCH")
+        print("Training...")
         print("Game reward mean = ", reward_mean)
         print("Max Batch reward so far: ", true_max_reward_so_far)
-        print("batch: ", batch)
+        print("L = ", bd.L)
+        print("H = ", bd.H)
+        print("BATCH: ", batch, " out of ", BATCHES) 
+        print("GAMES per BATCH:", P_GAMES)
+        print("Learning rate: ", Learning_rate)
+        print("Gamma: ", GAMMA)
+        print("Neurons: ", PG.neurons_layer_1)
+
         env.render()
+        # 4. Train neural network
         discounted_batch_rewards_norm = PG.learn()
-            
-    #PG.plot_cost()
+        print("==========================================")
+        print("VALIDATION\n")
+        bd.run_validation(PG, STEPS)
+        print("==========================================")

@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:35:16 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/26 13:50:16 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/27 10:39:48 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,24 +19,14 @@ import numpy as np
 from tensorflow.python.framework import ops
 #import cartpole
 
-'''def preprocess(state_dict):
-	state = np.concatenate((
-		np.array(state_dict['ingredients_map']).ravel(),
-		np.array(state_dict['slices_map']).ravel(),
-		np.array(state_dict['cursor_position']).ravel(),
-		[state_dict['slice_mode'],
-		state_dict['min_each_ingredient_per_slice'],
-		state_dict['max_ingredients_per_slice']],
-	))
-	return state.astype(np.float).ravel()'''
-
 class PolicyGradient:
     def __init__(
         self,
         n_x,
         n_y,
-        learning_rate=0.05,
+        learning_rate=0.01,
         reward_decay=0.95,
+        steps=100,
         load_path=None,
         save_path=None
     ):
@@ -45,6 +35,9 @@ class PolicyGradient:
         self.n_y = n_y
         self.lr = learning_rate
         self.gamma = reward_decay
+        self.steps = steps
+        self.neurons_layer_1 = 800
+        self.neurons_layer_2 = 800
 
         self.save_path = None
         if save_path is not None:
@@ -63,11 +56,8 @@ class PolicyGradient:
         self.sess = tf.Session()
 
         # $ tensorboard --logdir=logs
-        # http://0.0.0.0:6006/
-	#logs/model_2018_1500_27
-        #self.writer = tf.summary.FileWriter("logss/", self.sess.graph)
         from time import gmtime, strftime
-        s = strftime("pizza_m %a, %d %b %Y %H:%M", gmtime())
+        s = strftime("%a_%d_%b_%Y_%H:%M", gmtime())
         self.writer = tf.summary.FileWriter('logs/%s/' % s,self.sess.graph)
         # Initialize nodes with global variables
         self.sess.run(tf.global_variables_initializer())
@@ -90,8 +80,8 @@ class PolicyGradient:
             self.discounted_batch_rewards_norm = tf.placeholder(tf.float32, [None, ], name="rewards")
 
         # Initialize parameters
-        units_layer_1 = 100
-        units_layer_2 = 100
+        units_layer_1 = self.neurons_layer_1
+        units_layer_2 = self.neurons_layer_2 
         units_output_layer = self.n_y
         with tf.name_scope('parameters'):
             W1 = tf.get_variable("W1", [units_layer_1, self.n_x], initializer = tf.contrib.layers.xavier_initializer(seed=1))
@@ -204,18 +194,17 @@ class PolicyGradient:
     # 3.1 Discount and normalize rewards
     def discount_and_norm_rewards(self):
         discounted_batch_rewards = np.zeros_like(self.batch_rewards, dtype=float)
-        #print("length of episode rewards", len(self.batch_rewards))
-        #print("reward mean from PG: ", np.mean(self.batch_rewards) * 100)
         cumulative = 0
         for t in reversed(range(len(self.batch_rewards))):
+            if t % self.steps == 0:
+                cumulative = 0
             cumulative = cumulative * self.gamma + self.batch_rewards[t]
             discounted_batch_rewards[t] = cumulative
 
-       # print("MEAN\n", np.mean(discounted_batch_rewards))
         #discounted_batch_rewards -= np.mean(discounted_batch_rewards)
         #discounted_batch_rewards /= np.std(discounted_batch_rewards)
-        print("Batch Rewards: \n", self.batch_rewards)
-        print("Discounted batch rewards: \n", discounted_batch_rewards)
+       # print("Batch Rewards: \n", self.batch_rewards)
+        #print("Discounted batch rewards: \n", discounted_batch_rewards)
         return discounted_batch_rewards
 
 

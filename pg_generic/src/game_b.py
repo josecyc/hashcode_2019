@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/26 13:39:28 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/26 21:37:19 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -255,10 +255,10 @@ class Game:
         return self.env['state'], self.env['reward'], self.env['done'], self.env['information']
 
     def render_information(self):
-        print('  Rows:                             {}'.format(len(self.env['state']['ingredients_map'])))
-        print('  Columns:                          {}'.format(len(self.env['state']['ingredients_map'][0])))
-        print('  Min each ingredient per slice:    {}'.format(self.env['state']['min_each_ingredient_per_slice']))
-        print('  Max ingredients per slice:        {}'.format(self.env['state']['max_ingredients_per_slice']))
+        #print('  Rows:                             {}'.format(len(self.env['state']['ingredients_map'])))
+        #print('  Columns:                          {}'.format(len(self.env['state']['ingredients_map'][0])))
+        #print('  Min each ingredient per slice:    {}'.format(self.env['state']['min_each_ingredient_per_slice']))
+        #print('  Max ingredients per slice:        {}'.format(self.env['state']['max_ingredients_per_slice']))
         print('')
         print('  Last action:                      {}'.format(self.env['information']['action']))
         print('  Last reward:                      {}'.format(self.env['reward']))
