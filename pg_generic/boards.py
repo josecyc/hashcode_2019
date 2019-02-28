@@ -19,22 +19,22 @@ import src.game_b as game
 #l = random.randint(1, r/2) 
 #minim_max = l * 2 
 #h = random.randint(minim_max, r)
-R = 20
-C = 20
-H = 8
+#R = 20
+#C = 20
+H = 6
 L = 2
 
 ACTIONS = ["right", "down", "left", "up", "cut_right", "cut_down", "cut_up", "cut_left"]
 
 def preprocess(state_dict):
     cursor_map = np.zeros(np.array(state_dict['ingredients_map']).shape)
-    flat_ing_map = np.array(state_dict['ingredients_map']).ravel()
-    ing_map_len = len(flat_ing_map)
-    ing_map_flat_extended = flat_ing_map + np.zeros(1000000 - ing_map_len)
+    #flat_ing_map = np.array(state_dict['ingredients_map']).ravel()
+    #ing_map_len = len(flat_ing_map)
+    #ing_map_flat_extended = flat_ing_map + np.zeros(1000000 - ing_map_len)
     cursor_map[state_dict['cursor_position']] = 1
     state = np.concatenate((
-            #np.array(state_dict['ingredients_map']).ravel(),
-            ing_map_flat_extended,
+            np.array(state_dict['ingredients_map']).ravel(),
+            #ing_map_flat_extended,
             np.array(state_dict['slices_map']).ravel(),
             cursor_map.ravel(),
             [state_dict['slice_mode'],
@@ -46,8 +46,8 @@ def preprocess(state_dict):
 def rand_pizza(r, c):
    #h = random.randint(2, (r * c) // 5)
    #l = random.randint(1, 3)
-    r = random.randint(2, 1000)
-    c = random.randint(2, 1000)
+    #r = random.randint(2, 1000)
+    #c = random.randint(2, 1000)
     l = random.randint(1, r/2) 
     minim_max = l * 2
     h = random.randint(minim_max, r)
@@ -58,14 +58,14 @@ def rand_pizza(r, c):
         for _ in range(c):
             ls.append(ing[random.randint(0,1)])
         pizza.append(''.join(ls))
-    return {'pizza_lines' : pizza, 'r' : r, 'c' : c, 'l' : L, 'h' : H}
+    return {'pizza_lines' : pizza, 'r' : r, 'c' : c, 'l' : l, 'h' : h}
 
 
 def run_validation(PG, steps):
     env = game.Game({'max_steps': steps})
-    R = 20
-    C = 20
-    h = 8
+    R = 6
+    C = 7
+    h = 6
     l = 2
     pizza_lines = ["TMMMTTT","MMMMTMM", "TTMTTMT", "TMMTMMM", "TTTTTTM", "TTTTTTM"]
     #pizza_lines = ["TMTMTMT","MTMTMTM", "TMTMTMT", "MTMTMTM", "TMTMTMT", "MTMTMTM","TMTMTMT"]

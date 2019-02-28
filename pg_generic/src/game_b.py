@@ -6,11 +6,11 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/26 21:37:19 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/26 13:39:28 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-from src.google_e import GoogleEngineer
+from src.google_engineer import GoogleEngineer
 from src.pizza import Pizza
 
 import numpy as np
@@ -151,10 +151,10 @@ class ServePizza:
 
 class Game:
 
-  #  legend = '\n' + \
-  #      '                                           +---------+\n' + \
-  #      '  Legend: T M - ingredients  [ ] - cursor  | T  `  M | - slice boundaries\n' + \
-  #      '                                           +---------+'
+    #legend = '\n' + \
+     #   '                                           +---------+\n' + \
+     #   '  Legend: T M - ingredients  [ ] - cursor  | T  `  M | - slice boundaries\n' + \
+     #   '                                           +---------+'
 #
 #    hello = '\n' + \
 #        '             _)                                    |    |   _)               \n' + \
@@ -186,7 +186,8 @@ class Game:
     def init(self, pizza_config):
         self.google_engineer = GoogleEngineer(pizza_config)
         self.unique_ingredients = self.google_engineer.pizza.ingredients._unique.tolist()
-
+        self.r = pizza_config['r']
+        self.c = pizza_config['c']
         self.step_index = 0
         self.env = {
             'state': self.google_engineer.state(),
@@ -205,7 +206,7 @@ class Game:
 
         self.step_index += 1
         reward = self.google_engineer.do(action)
-        fract = self.env['information']['score']/(42.0)
+        fract = self.env['information']['score']/(self.r * self.c)
        # print ("scoreeee:", self.env['information']['score'])
         if fract >= 0.95:
             reward = reward*256
@@ -255,10 +256,10 @@ class Game:
         return self.env['state'], self.env['reward'], self.env['done'], self.env['information']
 
     def render_information(self):
-        #print('  Rows:                             {}'.format(len(self.env['state']['ingredients_map'])))
-        #print('  Columns:                          {}'.format(len(self.env['state']['ingredients_map'][0])))
-        #print('  Min each ingredient per slice:    {}'.format(self.env['state']['min_each_ingredient_per_slice']))
-        #print('  Max ingredients per slice:        {}'.format(self.env['state']['max_ingredients_per_slice']))
+        print('  Rows:                             {}'.format(len(self.env['state']['ingredients_map'])))
+        print('  Columns:                          {}'.format(len(self.env['state']['ingredients_map'][0])))
+        print('  Min each ingredient per slice:    {}'.format(self.env['state']['min_each_ingredient_per_slice']))
+        print('  Max ingredients per slice:        {}'.format(self.env['state']['max_ingredients_per_slice']))
         print('')
         print('  Last action:                      {}'.format(self.env['information']['action']))
         print('  Last reward:                      {}'.format(self.env['reward']))
@@ -391,7 +392,7 @@ if __name__ == '__main__':
 
         config_line = input('')
         print()
-        self.r, self.c, self.l, self.h = [int(n) for n in config_line.split(' ')]
+        r, c, l, h = [int(n) for n in config_line.split(' ')]
 
         pizza_lines = []
         if not quiet:
@@ -410,7 +411,7 @@ if __name__ == '__main__':
             pizza_lines.append(input(''))
 
         print()
-        pizza_config = { 'pizza_lines': pizza_lines, 'r': self.r, 'c': self.c, 'l': self.l, 'h': self.h }
+        pizza_config = { 'pizza_lines': pizza_lines, 'r': r, 'c': c, 'l': l, 'h': h }
 
         # init game
         game.init(pizza_config)
@@ -456,4 +457,4 @@ if __name__ == '__main__':
                     for slice in slices:
                         f.write('{} {} {} {}\n'.format(*slice))
 
-        if not quiet: print(game.goodbye)
+        #if not quiet: print(game.goodbye)
