@@ -6,18 +6,19 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 19:56:10 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/24 19:56:14 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/27 21:10:55 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 from src.pizza import Pizza, Direction
+from src.ingredients import Ingredients
 
 import numpy as np
 import json
 
 POSITIVE_REWARD = 1.0
-NEUTRAL_REWARD  = 0.0
-NEGATIVE_REWARD = -0.0
+NEUTRAL_REWARD  = 0
+NEGATIVE_REWARD = -0
 
 class ActionNotFoundException(Exception):
     pass
@@ -56,6 +57,8 @@ class GoogleEngineer:
 
     def increase(self, direction):
         slice = self.pizza.slice_at(self.cursor_position)
+        if slice is None:
+            return -0.1
         new_slice = self.pizza.increase(slice, direction, self.max_ingredients_per_slice)
         if (new_slice is not None and min(self.pizza.ingredients.of(new_slice)) >=
             self.min_each_ingredient_per_slice):
@@ -80,7 +83,7 @@ class GoogleEngineer:
             #self.valid_slices.append(slice)
             score = slice.ingredients #- self.score_of(slice)
             #self.score += score
-            return POSITIVE_REWARD * score
+            return POSITIVE_REWARD * 0.5 * score
         return NEUTRAL_REWARD #NEUTRAL_REWARD if new_slice is not None else NEGATIVE_REWARD
 
     def do(self, action):
@@ -94,6 +97,9 @@ class GoogleEngineer:
         elif self.slice_mode == True:
             self.slice_mode = False
             reward = -self.increase_neg(Direction[action])
+            slice = self.pizza.slice_at(self.cursor_position)
+            for direction in Direction:
+                self.pizza.disable_increase_around(slice, direction, 1)
             self.move(Direction[action])
             return reward
         else:

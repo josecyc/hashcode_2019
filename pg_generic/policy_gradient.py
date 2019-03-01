@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/22 21:35:16 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/27 10:39:48 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/28 16:33:33 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ class PolicyGradient:
         n_x,
         n_y,
         learning_rate=0.01,
-        reward_decay=0.95,
+        reward_decay=0.9,
         steps=100,
         load_path=None,
         save_path=None
@@ -68,6 +68,7 @@ class PolicyGradient:
         # Restore model
         if load_path is not None:
             self.load_path = load_path
+            saver = tf.train.import_meta_graph(load_path + ".meta")
             self.saver.restore(self.sess, self.load_path)
             print("model restored")
     
@@ -201,8 +202,8 @@ class PolicyGradient:
             cumulative = cumulative * self.gamma + self.batch_rewards[t]
             discounted_batch_rewards[t] = cumulative
 
-        #discounted_batch_rewards -= np.mean(discounted_batch_rewards)
-        #discounted_batch_rewards /= np.std(discounted_batch_rewards)
+        discounted_batch_rewards -= np.mean(discounted_batch_rewards)
+        discounted_batch_rewards /= np.std(discounted_batch_rewards)
        # print("Batch Rewards: \n", self.batch_rewards)
         #print("Discounted batch rewards: \n", discounted_batch_rewards)
         return discounted_batch_rewards

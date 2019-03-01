@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/26 19:19:52 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/27 10:55:00 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/27 18:56:14 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -72,7 +72,7 @@ def run_validation(PG, steps):
     pizza_config = {'pizza_lines': pizza_lines, 'r': R, 'c': C, 'l': l, 'h': h}
     state = env.init(pizza_config)[0]  # np.zeros(OBSERVATION_DIM) #get only first value of tuple
     done = False
-
+    acts = []
     for step in range(steps):
         state = preprocess(state)
         # 1. Choose an action based on observation
@@ -80,8 +80,9 @@ def run_validation(PG, steps):
 
         # 2. Take action in the environment
         state_, reward, done, info = env.step(ACTIONS[action])
-
+        acts.append(ACTIONS[action])
         state = state_
+    print(acts)
     env.render()
     #game ends
 

@@ -39,6 +39,8 @@ class Slice:
         self.r1 = r1
         self.c1 = c1
 
+        self.done=False
+
         self.as_tuple = (r0, c0, r1, c1)
         self.ingredients = (self.r1-self.r0+1) * (self.c1-self.c0+1)
 
@@ -116,7 +118,9 @@ class Pizza:
         slice_id = self._map[ri][ci]
         if slice_id == -1:
             return Slice(ri,ci,ri,ci)
-        return self._dict[slice_id]
+        if self._dict[slice_id].done == False:
+            return self._dict[slice_id]
+        return None
 
     def increase(self, slice, direction, max_ingredients):
         slice_id = slice.r0*self.c+slice.c0

@@ -6,7 +6,7 @@
 #    By: jcruz-y- <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/02/24 18:44:19 by jcruz-y-          #+#    #+#              #
-#    Updated: 2019/02/26 13:39:28 by jcruz-y-         ###   ########.fr        #
+#    Updated: 2019/02/27 18:49:03 by jcruz-y-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -208,22 +208,29 @@ class Game:
         reward = self.google_engineer.do(action)
         fract = self.env['information']['score']/(self.r * self.c)
        # print ("scoreeee:", self.env['information']['score'])
-        if fract >= 0.95:
-            reward = reward*256
-        elif fract >= 0.9:
-            reward = reward*128
-        elif fract >= 0.8:
-            reward = reward*64
-        elif fract >= 0.75:
-            reward = reward*32
-        elif fract >= 0.7:
-            reward = reward*16
-        elif fract >= 0.65:
-            reward = reward*8
-        elif fract >= 0.6:
-            reward = reward*4
-        elif fract >= 0.4:
-            reward = reward*2
+        if reward > 0:
+            if fract >= 0.95:
+                reward = reward*1000
+            elif fract >= 0.9:
+                reward = reward*512
+            elif fract >= 0.8:
+                reward = reward*256
+            elif fract >= 0.75:
+                reward = reward*128
+            elif fract >= 0.7:
+                reward = reward*64
+            elif fract >= 0.65:
+                reward = reward*32
+            elif fract >= 0.6:
+                reward = reward*16
+            elif fract >= 0.4:
+                reward = reward*8
+            elif fract >= 0.2:
+                reward = reward*4
+            elif fract >= 0.1:
+                reward = reward*2
+            else:
+                reward = reward
         else:
             reward = reward
         #done = self.step_index >= self.max_steps
